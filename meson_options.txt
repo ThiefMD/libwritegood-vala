@@ -1,0 +1,2 @@
+option('enable_examples', type: 'boolean', value: false, description: 'build examples')
+option('shared_lib', type: 'boolean', value: false, description: 'build shared library')

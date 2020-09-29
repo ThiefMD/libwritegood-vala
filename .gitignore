@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Meson stuff
+build
+build/*
+.vscode/*
+.vscode
