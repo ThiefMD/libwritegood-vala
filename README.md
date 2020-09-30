@@ -2,6 +2,8 @@
 
 A port of [write good](https://github.com/btford/write-good), [3 shell scripts to improve your writing, or "My Ph.D. advisor rewrote himself in bash."](http://matt.might.net/articles/shell-scripts-for-passive-voice-weasel-words-duplicates), and [How I reverse-engineered the Hemingway Editor - a popular writing app - and built my own from a beach in Thailand](https://www.freecodecamp.org/news/https-medium-com-samwcoding-deconstructing-the-hemingway-app-8098e22d878d) for Gtk TextView.
 
+![](write-good.png)
+
 ## Languages
 
 Currently, we have:
