@@ -15,5 +15,6 @@ libwritegood_deps = [
   gtk3_dep
 ]
 
+subdir('vapi')
 subdir('src')
 subdir('examples')

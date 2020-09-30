@@ -1,0 +1,1 @@
+configvapi = files ('config.vapi')
