@@ -72,7 +72,7 @@ namespace WriteGood {
 
         private void find_complex_sentences () {
             try {
-                Regex check_sentences = new Regex ("([^\\.\\!\\?]*)[\\.\\!\\?\\n]", RegexCompileFlags.CASELESS, 0);
+                Regex check_sentences = new Regex ("([^\\.\\!\\?\\n]*)[\\.\\!\\?]", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
                 if (check_sentences.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
                     do {
