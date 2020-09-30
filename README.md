@@ -55,3 +55,33 @@ writegood_dep = dependency('writegood-0.1', fallback : [ 'writegood', 'libwriteg
 ```
 
 Then add writegood_dep to your dependencies.
+
+### Attaching to your TextView
+
+This example is with Gtk.SourceView, but a Gtk.TextView will also work.
+
+```vala
+var manager = Gtk.SourceLanguageManager.get_default ();
+var language = manager.guess_language (null, "text/markdown");
+var view = new Gtk.SourceView ();
+buffer = new Gtk.SourceBuffer.with_language (language);
+buffer.highlight_syntax = true;
+view.set_buffer (buffer);
+view.set_wrap_mode (Gtk.WrapMode.WORD);
+
+//
+// Enable write-good
+//
+
+checker = new WriteGood.Checker ();
+checker.set_language ("en_US");
+checker.attach (view);
+
+//
+// WriteGood doesn't auto-check for changes, may be too compute heavy for large docs
+// Probably don't do this, and use a Timeout, but yeah... just an example
+//
+buffer.changed.connect (() => {
+    checker.recheck_all ();
+});
+```
