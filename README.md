@@ -85,3 +85,7 @@ buffer.changed.connect (() => {
     checker.recheck_all ();
 });
 ```
+
+### Building Examples
+
+After running `meson build` inside of the build directory run `meson configure -Denable_examples=true`. This will build the hello-writegood app that can be used for testing.
