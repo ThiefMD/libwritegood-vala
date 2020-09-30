@@ -471,6 +471,10 @@ namespace WriteGood {
             buffer.tag_table.remove (tag_hard_sentences);
             tag_hard_sentences = null;
 
+            buffer.remove_tag (tag_very_hard_sentences, start, end);
+            buffer.tag_table.remove (tag_very_hard_sentences);
+            tag_very_hard_sentences = null;
+
             view = null;
             buffer = null;
         }
