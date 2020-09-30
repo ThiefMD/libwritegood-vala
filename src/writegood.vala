@@ -244,7 +244,7 @@ namespace WriteGood {
                         }
 
                         // Fix for when unaligned for some reason
-                        if ((start.inside_word () && !start.starts_word () && !end.ends_word ()) ||
+                        if ((start.inside_word () && !start.starts_word ()) ||
                             (end.inside_word () && !end.ends_word ()))
                         {
                             int org = start.get_offset ();
