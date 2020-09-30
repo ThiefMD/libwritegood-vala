@@ -61,6 +61,7 @@ Hope it's useful!
     public void rescan () {
         if (scheduler.can_do_action ()) {
             Timeout.add (TYPE_DELAY, () => {
+                debug ("\n===== rescan =====\n");
                 checker.recheck_all ();
                 return false;
             });

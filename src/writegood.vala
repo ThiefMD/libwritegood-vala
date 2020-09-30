@@ -24,9 +24,9 @@ namespace WriteGood {
         public bool check_lexical_illusions { get; set; default = true; }
         public bool check_hard_sentences { get; set; default = true; }
 
-        public Checker (bool underline = true, bool hightlight = true) {
+        public Checker (bool underline = true, bool highlight = true) {
             c_underline = underline;
-            c_highlight = hightlight;
+            c_highlight = highlight;
         }
 
         public void recheck_all () {
@@ -72,34 +72,44 @@ namespace WriteGood {
 
         private void find_complex_sentences () {
             try {
-                Regex check_sentences = new Regex ("([^\\.\\!\\?\\n]*)[\\.\\!\\?]", RegexCompileFlags.CASELESS, 0);
+                Regex check_sentences = new Regex ("([^\\.\\!\\?\\n]+[\\.\\!\\?])", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
                 if (check_sentences.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
                     do {
                         for (int i = 1; i < match_info.get_match_count (); i++) {
                             string sentence = match_info.fetch (i);
-                            if (language.is_very_hard_sentence (sentence)) {
-                                int start_pos, end_pos;
-                                bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
+                            int start_pos, end_pos;
+                            bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
 
-                                if (highlight) {
-                                    Gtk.TextIter start, end;
+                            if (highlight) {
+                                Gtk.TextIter start, end;
+                                buffer.get_iter_at_offset (out start, start_pos);
+                                buffer.get_iter_at_offset (out end, end_pos);
+                                if (start.inside_sentence ()) {
+                                    start.backward_sentence_start ();
+                                }
+
+                                if (end.inside_sentence ()) {
+                                    end.backward_sentence_start ();
+                                    if (end.starts_word ()) {
+                                        end.backward_char ();
+                                    }
+                                }
+
+                                // Undo if we go too far
+                                if (end.get_offset () - start.get_offset () < (sentence.length - 4)) {
                                     buffer.get_iter_at_offset (out start, start_pos);
                                     buffer.get_iter_at_offset (out end, end_pos);
+                                }
+
+                                if (language.is_very_hard_sentence (sentence)) {
                                     buffer.apply_tag (tag_very_hard_sentences, start, end);
                                 }
-                            }
-                            if (language.is_hard_sentence (sentence)) {
-                                int start_pos, end_pos;
-                                bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
-
-                                if (highlight) {
-                                    Gtk.TextIter start, end;
-                                    buffer.get_iter_at_offset (out start, start_pos);
-                                    buffer.get_iter_at_offset (out end, end_pos);
+                                if (language.is_hard_sentence (sentence)) {
                                     buffer.apply_tag (tag_hard_sentences, start, end);
                                 }
                             }
+                            
                         }
                     } while (match_info.next ());
                 }
@@ -220,11 +230,20 @@ namespace WriteGood {
                 bool highlight = false;
                 for (int i = 1; i < match_info.get_match_count (); i++) {
                     highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
+                    string word = match_info.fetch (i);
 
-                    if (highlight) {
+                    if (word != null && highlight && word.chomp ().chug () != "") {
+                        debug ("%s: %s", marker.name, word);
                         Gtk.TextIter start, end;
                         buffer.get_iter_at_offset (out start, start_pos);
                         buffer.get_iter_at_offset (out end, end_pos);
+
+                        if (start.inside_word () && !start.starts_word () && !end.ends_word () || end.inside_word ()) {
+                            int org = start.get_offset ();
+                            start.backward_word_start ();
+                            int diff = org - start.get_offset ();
+                            end.backward_chars (diff);
+                        }
                         buffer.remove_all_tags (start, end);
                         buffer.apply_tag (marker, start, end);
                     }

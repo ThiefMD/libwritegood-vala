@@ -10,6 +10,7 @@ namespace WriteGood {
             weasel_words = {
                 "are a number",
                 "clearly",
+                "actually",
                 "completely",
                 "exceedingly",
                 "excellent",
@@ -30,11 +31,16 @@ namespace WriteGood {
                 "significantly",
                 "substantially",
                 "surprisingly",
+                "suddenly",
                 "tiny",
                 "usually",
                 "various",
                 "vast",
-                "very"
+                "very",
+                "some people",
+                "most people",
+                "research shows",
+                "experts say"
             };
 
             wordy_words = {
@@ -61,6 +67,8 @@ namespace WriteGood {
                 "aircraft",
                 "all of",
                 "all things considered",
+                "so to say",
+                "that being said",
                 "alleviate",
                 "allocate",
                 "along the lines of",
@@ -73,7 +81,7 @@ namespace WriteGood {
                 "appreciable",
                 "as a matter of fact",
                 "as a means of",
-                "as far as I\"m concerned",
+                "as far as I\'m concerned",
                 "as of yet",
                 "as to",
                 "as yet",
@@ -125,6 +133,7 @@ namespace WriteGood {
                 "finalize",
                 "first and foremost",
                 "for all intents and purposes",
+                "it stands to reason",
                 "for the most part",
                 "for the purpose of",
                 "forfeit",
