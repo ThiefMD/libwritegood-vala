@@ -415,6 +415,8 @@ namespace WriteGood {
         }
 
         public void detach () {
+            view.populate_popup.disconnect (populate_menu);
+
             Gtk.TextIter start, end;
             buffer.get_bounds (out start, out end);
 
