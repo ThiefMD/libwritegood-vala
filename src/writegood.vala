@@ -72,9 +72,9 @@ namespace WriteGood {
 
         private void find_complex_sentences () {
             try {
-                Regex check_sentences = new Regex ("([^\\.\\!\\?\\n]+[\\.\\!\\?])", RegexCompileFlags.CASELESS, 0);
+                Regex check_sentences = new Regex ("\\s+([^\\.\\!\\?\\n]+[\\.\\!\\?\\n\\R])", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (check_sentences.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (check_sentences.match_full (buffer.text, buffer.text.length, 0, RegexMatchFlags.BSR_ANYCRLF | RegexMatchFlags.NEWLINE_ANYCRLF, out match_info)) {
                     do {
                         for (int i = 1; i < match_info.get_match_count (); i++) {
                             string sentence = match_info.fetch (i);
@@ -85,8 +85,8 @@ namespace WriteGood {
                                 Gtk.TextIter start, end;
                                 buffer.get_iter_at_offset (out start, start_pos);
                                 buffer.get_iter_at_offset (out end, end_pos);
-                                if (start.inside_sentence ()) {
-                                    start.backward_sentence_start ();
+                                if (!start.starts_sentence ()) {
+                                    start.backward_word_start ();
                                 }
 
                                 if (end.inside_sentence ()) {
@@ -137,7 +137,7 @@ namespace WriteGood {
                         if (match_info.get_match_count () >= 2) {
                             string word = match_info.fetch (2);
 
-                            if (is_word.match (word) && word.down () == last_match) {
+                            if (word != null && word != "" && word.down () == last_match) {
                                 int start_pos, end_pos;
                                 bool highlight = match_info.fetch_pos (2, out start_pos, out end_pos);
 
@@ -148,7 +148,7 @@ namespace WriteGood {
                                     buffer.apply_tag (tag_lexical_illusions, start, end);
                                 }
                             }
-                            if (is_word.match (word)) {
+                            if (word != null && word != "") {
                                 last_match = word.down ();
                             }
                         }
@@ -232,13 +232,21 @@ namespace WriteGood {
                     highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
                     string word = match_info.fetch (i);
 
-                    if (word != null && highlight && word.chomp ().chug () != "") {
+                    if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                         debug ("%s: %s", marker.name, word);
                         Gtk.TextIter start, end;
                         buffer.get_iter_at_offset (out start, start_pos);
                         buffer.get_iter_at_offset (out end, end_pos);
 
-                        if (start.inside_word () && !start.starts_word () && !end.ends_word () || end.inside_word ()) {
+                        // Fix for finding partial adverbs
+                        if (end.inside_word () && start.starts_word ()) {
+                            end.forward_word_end ();
+                        }
+
+                        // Fix for when unaligned for some reason
+                        if ((start.inside_word () && !start.starts_word () && !end.ends_word ()) ||
+                            (end.inside_word () && !end.ends_word ()))
+                        {
                             int org = start.get_offset ();
                             start.backward_word_start ();
                             int diff = org - start.get_offset ();
