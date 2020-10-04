@@ -330,7 +330,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (_("This sentence very is hard to read"));
+                Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (_("This sentence is very hard to read"));
                 menu.add (very_hard_sentence);
             }
 
