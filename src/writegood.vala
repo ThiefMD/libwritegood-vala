@@ -240,13 +240,13 @@ namespace WriteGood {
             }
         }
 
-        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker) throws Error {
+        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, bool highlight_all = true) throws Error {
             do {
                 int start_pos, end_pos;
                 bool highlight = false;
-                for (int i = 1; i < match_info.get_match_count (); i++) {
-                    highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
-                    string word = match_info.fetch (i);
+                if (highlight_all) {
+                    highlight = match_info.fetch_pos (0, out start_pos, out end_pos);
+                    string word = match_info.fetch (0);
                     start_pos = checking_copy.slice (0, start_pos).char_count ();
                     end_pos = checking_copy.slice (0, end_pos).char_count ();
 
@@ -258,6 +258,23 @@ namespace WriteGood {
 
                         buffer.remove_all_tags (start, end);
                         buffer.apply_tag (marker, start, end);
+                    }
+                } else {
+                    for (int i = 1; i < match_info.get_match_count (); i++) {
+                        highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
+                        string word = match_info.fetch (i);
+                        start_pos = checking_copy.slice (0, start_pos).char_count ();
+                        end_pos = checking_copy.slice (0, end_pos).char_count ();
+
+                        if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
+                            debug ("%s: %s", marker.name, word);
+                            Gtk.TextIter start, end;
+                            buffer.get_iter_at_offset (out start, start_pos);
+                            buffer.get_iter_at_offset (out end, end_pos);
+
+                            buffer.remove_all_tags (start, end);
+                            buffer.apply_tag (marker, start, end);
+                        }
                     }
                 }
             } while (match_info.next ());
