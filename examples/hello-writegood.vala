@@ -73,7 +73,7 @@ Hope it's useful!
         private Mutex droptex;
         private int delay;
 
-        public TimedMutex (int milliseconds_delay = 300) {
+        public TimedMutex (int milliseconds_delay = 1500) {
             if (milliseconds_delay < 100) {
                 milliseconds_delay = 100;
             }
