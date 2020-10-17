@@ -2,6 +2,7 @@ namespace WriteGood {
     public abstract class Language {
         public abstract string[] weasel_words { get; protected set; }
         public abstract string[] passive_words { get; protected set; }
+        public abstract string[] passive_future_words { get; protected set; }
         public abstract string[] adverbs_words { get; protected set; }
         public abstract string[] weak_words { get; protected set; }
         public abstract string[] wordy_words { get; protected set; }

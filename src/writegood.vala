@@ -24,6 +24,24 @@ namespace WriteGood {
         public bool check_lexical_illusions { get; set; default = true; }
         public bool check_hard_sentences { get; set; default = true; }
 
+        private bool showing_tooltips = false;
+        public bool show_tooltip { 
+            get {
+                return showing_tooltips;
+            }
+            set
+            {
+                if (value) {
+                    view.set_has_tooltip (true);
+                    view.query_tooltip.connect (handle_tooltip);
+                } else {
+                    view.query_tooltip.disconnect (handle_tooltip);
+                }
+                showing_tooltips = value;
+            }
+        }
+        public bool show_menu_item { get; set; default = true; }
+
         public Checker (bool underline = true, bool highlight = true) {
             c_underline = underline;
             c_highlight = highlight;
@@ -214,9 +232,14 @@ namespace WriteGood {
             }
 
             try {
-                Regex passive_voice = new Regex ("\\b(am|are|were|being|is|been|was|be)\\b\\s*([\\w]+ed|" + string.joinv("|", language.passive_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+                Regex passive_voice = new Regex ("\\b(am|are|were|being|is|been|was|be)\\b\\s*([\\w]+ed|" + string.joinv ("|", language.passive_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
                 if (passive_voice.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                    highlight_results (match_info, tag_passive);
+                }
+
+                Regex passive_future = new Regex ("\\b(will)\\b\\s*(" + string.joinv ("|", language.passive_words) + string.joinv ("|", language.passive_future_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+                if (passive_future.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
                     highlight_results (match_info, tag_passive);
                 }
             } catch (Error e) {
@@ -260,6 +283,10 @@ namespace WriteGood {
         }
 
         private void populate_menu (Gtk.TextView source, Gtk.Menu menu) {
+            if (!show_menu_item) {
+                return;
+            }
+
             Gtk.TextMark cursor = buffer.get_insert ();
             Gtk.TextIter iter_start;
             buffer.get_iter_at_mark (out iter_start, cursor);
@@ -335,6 +362,63 @@ namespace WriteGood {
             }
 
             menu.show_all ();
+        }
+
+        public bool handle_tooltip (int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip) {
+            if (!showing_tooltips) {
+                return true;
+            }
+
+            Gtk.TextIter? iter;
+            if (keyboard_tooltip) {
+                int offset = buffer.cursor_position;
+                buffer.get_iter_at_offset (out iter, offset);
+            } else {
+                int m_x, m_y, trailing;
+                view.window_to_buffer_coords (Gtk.TextWindowType.TEXT, x, y, out m_x, out m_y);
+                view.get_iter_at_position (out iter, out trailing, m_x, m_y);
+            }
+
+            if (iter != null) {
+                string message = "";
+                if (iter.has_tag (tag_passive)) {
+                    message = _("Passive voice found, be active");
+                }
+
+                if (iter.has_tag (tag_weasel_words)) {
+                    message = _("Weasel word found, omit it");
+                }
+
+                if (iter.has_tag (tag_weak_words)) {
+                    message = _("Weak word found, be forceful");
+                }
+
+                if (iter.has_tag (tag_wordy_words)) {
+                    message = _("Wordy word found, be direct");
+                }
+
+                if (iter.has_tag (tag_lexical_illusions)) {
+                    message = _("Repeating word found");
+                }
+
+                if (iter.has_tag (tag_hard_sentences)) {
+                    message = _("This sentence is hard to read");
+                }
+
+                if (iter.has_tag (tag_very_hard_sentences)) {
+                    message = _("This sentence is very hard to read");
+                }
+
+                if (message == "") {
+                    return false;
+                } else {
+                    tooltip.set_markup (message);
+                }
+            } else {
+                return false;
+            }
+
+            return true;
         }
 
         public bool attach (Gtk.TextView textview) {

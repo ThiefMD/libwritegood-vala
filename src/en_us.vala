@@ -2,6 +2,7 @@ namespace WriteGood {
     public class USEnglish : Language {
         public override string[] weasel_words { get; protected set; }
         public override string[] passive_words { get; protected set; }
+        public override string[] passive_future_words { get; protected set; }
         public override string[] adverbs_words { get; protected set; }
         public override string[] weak_words { get; protected set; }
         public override string[] wordy_words { get; protected set; }
@@ -441,6 +442,13 @@ namespace WriteGood {
                 "withstood",
                 "wrung",
                 "written"
+            };
+
+            passive_future_words = {
+                "help",
+                "run",
+                "clean",
+                "win"
             };
 
             adverbs_words = {
