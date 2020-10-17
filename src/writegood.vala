@@ -33,10 +33,10 @@ namespace WriteGood {
             }
             set
             {
-                if (value) {
+                if (value && view != null) {
                     view.set_has_tooltip (true);
                     view.query_tooltip.connect (handle_tooltip);
-                } else {
+                } else if (view != null) {
                     view.query_tooltip.disconnect (handle_tooltip);
                 }
                 showing_tooltips = value;
@@ -529,6 +529,10 @@ namespace WriteGood {
                 tag_very_hard_sentences.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
             }
 
+            if (showing_tooltips) {
+                view.query_tooltip.connect (handle_tooltip);
+            }
+
             return true;
         }
 
@@ -579,6 +583,10 @@ namespace WriteGood {
             buffer.remove_tag (tag_very_hard_sentences, start, end);
             buffer.tag_table.remove (tag_very_hard_sentences);
             tag_very_hard_sentences = null;
+
+            if (showing_tooltips) {
+                view.query_tooltip.disconnect (handle_tooltip);
+            }
 
             view = null;
             buffer = null;
