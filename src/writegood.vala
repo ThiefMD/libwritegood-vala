@@ -11,6 +11,8 @@ namespace WriteGood {
         private Gtk.TextTag tag_lexical_illusions;
         private Gtk.TextTag tag_hard_sentences;
         private Gtk.TextTag tag_very_hard_sentences;
+        private Mutex checking;
+        private string checking_copy;
         private Language language;
         private string language_string;
 
@@ -45,10 +47,15 @@ namespace WriteGood {
         public Checker (bool underline = true, bool highlight = true) {
             c_underline = underline;
             c_highlight = highlight;
+            checking = Mutex ();
         }
 
         public void recheck_all () {
             if (view == null || buffer == null || language == null) {
+                return;
+            }
+
+            if (!checking.trylock ()) {
                 return;
             }
 
@@ -62,6 +69,7 @@ namespace WriteGood {
             buffer.remove_tag (tag_hard_sentences, start, end);
             buffer.remove_tag (tag_very_hard_sentences, start, end);
             buffer.remove_tag (tag_lexical_illusions, start, end);
+            checking_copy = buffer.text;
 
             if (check_hard_sentences) {
                 find_complex_sentences ();
@@ -86,13 +94,17 @@ namespace WriteGood {
             if (check_lexical_illusions) {
                 find_lexical_illusions ();
             }
+
+            checking_copy = "";
+
+            checking.unlock ();
         }
 
         private void find_complex_sentences () {
             try {
                 Regex check_sentences = new Regex ("\\s+([^\\.\\!\\?\\n]+[\\.\\!\\?\\n\\R])", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (check_sentences.match_full (buffer.text, buffer.text.length, 0, RegexMatchFlags.BSR_ANYCRLF | RegexMatchFlags.NEWLINE_ANYCRLF, out match_info)) {
+                if (check_sentences.match_full (checking_copy, checking_copy.length, 0, RegexMatchFlags.BSR_ANYCRLF | RegexMatchFlags.NEWLINE_ANYCRLF, out match_info)) {
                     do {
                         for (int i = 1; i < match_info.get_match_count (); i++) {
                             string sentence = match_info.fetch (i);
@@ -100,6 +112,8 @@ namespace WriteGood {
                             bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
 
                             if (highlight) {
+                                start_pos = checking_copy.slice (0, start_pos).char_count ();
+                                end_pos = checking_copy.slice (0, end_pos).char_count ();
                                 Gtk.TextIter start, end;
                                 buffer.get_iter_at_offset (out start, start_pos);
                                 buffer.get_iter_at_offset (out end, end_pos);
@@ -142,10 +156,10 @@ namespace WriteGood {
             }
 
             try {
-                Regex check_words = new Regex ("(\\s*)([^\\s]+)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+                Regex check_words = new Regex ("(\\s*)([^\\.\\?!:\"\\s]+)([\\.\\?!:\"\\s]*)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 Regex is_word = new Regex ("\\w+", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (check_words.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (check_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     if (match_info == null) {
                         return;
                     }
@@ -160,13 +174,15 @@ namespace WriteGood {
                                 bool highlight = match_info.fetch_pos (2, out start_pos, out end_pos);
 
                                 if (highlight) {
+                                    start_pos = checking_copy.slice (0, start_pos).char_count ();
+                                    end_pos = checking_copy.slice (0, end_pos).char_count ();
                                     Gtk.TextIter start, end;
                                     buffer.get_iter_at_offset (out start, start_pos);
                                     buffer.get_iter_at_offset (out end, end_pos);
                                     buffer.apply_tag (tag_lexical_illusions, start, end);
                                 }
                             }
-                            if (word != null && word != "") {
+                            if (word != null && word != "" && is_word.match (word, RegexMatchFlags.NOTEMPTY)) {
                                 last_match = word.down ();
                             }
                         }
@@ -185,7 +201,7 @@ namespace WriteGood {
             try {
                 Regex wordy_words = new Regex ("\\b(" + string.joinv("|", language.wordy_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (wordy_words.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (wordy_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     highlight_results (match_info, tag_wordy_words);
                 }
             } catch (Error e) {
@@ -201,7 +217,7 @@ namespace WriteGood {
             try {
                 Regex weak_words = new Regex ("\\b((" + string.joinv("|", language.adverbs_words) + ")(y)|(" + string.joinv("|", language.weak_words) + "))\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (weak_words.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (weak_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     
                     highlight_results (match_info, tag_weak_words);
                 }
@@ -218,7 +234,7 @@ namespace WriteGood {
             try {
                 Regex weasel_words = new Regex ("\\b(" + string.joinv("|", language.weasel_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (weasel_words.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (weasel_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     highlight_results (match_info, tag_weasel_words);
                 }
             } catch (Error e) {
@@ -234,7 +250,7 @@ namespace WriteGood {
             try {
                 Regex passive_voice = new Regex ("\\b(am|are|were|being|is|been|was|be)\\b\\s*([\\w]+ed|" + string.joinv ("|", language.passive_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
-                if (passive_voice.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (passive_voice.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     highlight_results (match_info, tag_passive);
                 }
 
@@ -247,13 +263,15 @@ namespace WriteGood {
             }
         }
 
-        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker) throws Error {
+        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, bool highlight_all = true) throws Error {
             do {
                 int start_pos, end_pos;
                 bool highlight = false;
-                for (int i = 1; i < match_info.get_match_count (); i++) {
-                    highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
-                    string word = match_info.fetch (i);
+                if (highlight_all) {
+                    highlight = match_info.fetch_pos (0, out start_pos, out end_pos);
+                    string word = match_info.fetch (0);
+                    start_pos = checking_copy.slice (0, start_pos).char_count ();
+                    end_pos = checking_copy.slice (0, end_pos).char_count ();
 
                     if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                         debug ("%s: %s", marker.name, word);
@@ -261,22 +279,25 @@ namespace WriteGood {
                         buffer.get_iter_at_offset (out start, start_pos);
                         buffer.get_iter_at_offset (out end, end_pos);
 
-                        // Fix for finding partial adverbs
-                        if (end.inside_word () && start.starts_word ()) {
-                            end.forward_word_end ();
-                        }
-
-                        // Fix for when unaligned for some reason
-                        if ((start.inside_word () && !start.starts_word ()) ||
-                            (end.inside_word () && !end.ends_word ()))
-                        {
-                            int org = start.get_offset ();
-                            start.backward_word_start ();
-                            int diff = org - start.get_offset ();
-                            end.backward_chars (diff);
-                        }
                         buffer.remove_all_tags (start, end);
                         buffer.apply_tag (marker, start, end);
+                    }
+                } else {
+                    for (int i = 1; i < match_info.get_match_count (); i++) {
+                        highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
+                        string word = match_info.fetch (i);
+                        start_pos = checking_copy.slice (0, start_pos).char_count ();
+                        end_pos = checking_copy.slice (0, end_pos).char_count ();
+
+                        if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
+                            debug ("%s: %s", marker.name, word);
+                            Gtk.TextIter start, end;
+                            buffer.get_iter_at_offset (out start, start_pos);
+                            buffer.get_iter_at_offset (out end, end_pos);
+
+                            buffer.remove_all_tags (start, end);
+                            buffer.apply_tag (marker, start, end);
+                        }
                     }
                 }
             } while (match_info.next ());
