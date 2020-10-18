@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Quick-Start
+subtitle: Get up and running without all the fluff
 permalink: /quick-start/
 ---
 
