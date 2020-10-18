@@ -26,6 +26,21 @@ namespace WriteGood {
         public bool check_lexical_illusions { get; set; default = true; }
         public bool check_hard_sentences { get; set; default = true; }
 
+        public signal void passive_voice_clicked ();
+        public signal void weasel_words_clicked ();
+        public signal void weak_words_and_adverbs_clicked ();
+        public signal void wordy_words_clicked ();
+        public signal void lexical_illusions_clicked ();
+        public signal void hard_sentences_clicked ();
+
+        public int passive_voice_count { get; set; default = 0; }
+        public int weasel_word_count { get; set; default = 0; }
+        public int weak_words_and_adverbs_count { get; set; default = 0; }
+        public int wordy_words_count { get; set; default = 0; }
+        public int lexical_illusions_count { get; set; default = 0; }
+        public int hard_sentence_count { get; set; default = 0; }
+        public int very_hard_sentence_count { get; set; default = 0; }
+
         private bool showing_tooltips = false;
         public bool show_tooltip { 
             get {
@@ -104,8 +119,10 @@ namespace WriteGood {
             try {
                 Regex check_sentences = new Regex ("\\s+([^\\.\\!\\?\\n]+[\\.\\!\\?\\n\\R])", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                hard_sentence_count = 0;
                 if (check_sentences.match_full (checking_copy, checking_copy.length, 0, RegexMatchFlags.BSR_ANYCRLF | RegexMatchFlags.NEWLINE_ANYCRLF, out match_info)) {
                     do {
+                        hard_sentence_count++;
                         for (int i = 1; i < match_info.get_match_count (); i++) {
                             string sentence = match_info.fetch (i);
                             int start_pos, end_pos;
@@ -159,6 +176,7 @@ namespace WriteGood {
                 Regex check_words = new Regex ("(\\s*)([^\\.\\?!:\"\\s]+)([\\.\\?!:\"\\s]*)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 Regex is_word = new Regex ("\\w+", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                lexical_illusions_count = 0;
                 if (check_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     if (match_info == null) {
                         return;
@@ -174,6 +192,7 @@ namespace WriteGood {
                                 bool highlight = match_info.fetch_pos (2, out start_pos, out end_pos);
 
                                 if (highlight) {
+                                    lexical_illusions_count++;
                                     start_pos = checking_copy.slice (0, start_pos).char_count ();
                                     end_pos = checking_copy.slice (0, end_pos).char_count ();
                                     Gtk.TextIter start, end;
@@ -201,8 +220,11 @@ namespace WriteGood {
             try {
                 Regex wordy_words = new Regex ("\\b(" + string.joinv("|", language.wordy_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                wordy_words_count = 0;
                 if (wordy_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
-                    highlight_results (match_info, tag_wordy_words);
+                    int matches = 0;
+                    highlight_results (match_info, tag_wordy_words, out matches);
+                    wordy_words_count = matches;
                 }
             } catch (Error e) {
                 warning ("Could not identify wordy words: %s", e.message);
@@ -217,9 +239,11 @@ namespace WriteGood {
             try {
                 Regex weak_words = new Regex ("\\b((" + string.joinv("|", language.adverbs_words) + ")(y)|(" + string.joinv("|", language.weak_words) + "))\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                weak_words_and_adverbs_count = 0;
                 if (weak_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
-                    
-                    highlight_results (match_info, tag_weak_words);
+                    int matches = 0;
+                    highlight_results (match_info, tag_weak_words, out matches);
+                    weak_words_and_adverbs_count = matches;
                 }
             } catch (Error e) {
                 warning ("Could not identify weak words: %s", e.message);
@@ -234,8 +258,11 @@ namespace WriteGood {
             try {
                 Regex weasel_words = new Regex ("\\b(" + string.joinv("|", language.weasel_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                weasel_word_count = 0;
                 if (weasel_words.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
-                    highlight_results (match_info, tag_weasel_words);
+                    int matches = 0;
+                    highlight_results (match_info, tag_weasel_words, out matches);
+                    weasel_word_count = matches;
                 }
             } catch (Error e) {
                 warning ("Could not identify weasel words: %s", e.message);
@@ -250,21 +277,28 @@ namespace WriteGood {
             try {
                 Regex passive_voice = new Regex ("\\b(am|are|were|being|is|been|was|be)\\b\\s*([\\w]+ed|" + string.joinv ("|", language.passive_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
+                passive_voice_count = 0;
                 if (passive_voice.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
-                    highlight_results (match_info, tag_passive);
+                    int matches = 0;
+                    highlight_results (match_info, tag_passive, out matches);
+                    passive_voice_count += matches;
                 }
 
                 Regex passive_future = new Regex ("\\b(will)\\b\\s*(" + string.joinv ("|", language.passive_words) + string.joinv ("|", language.passive_future_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
                 if (passive_future.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
-                    highlight_results (match_info, tag_passive);
+                    int matches = 0;
+                    highlight_results (match_info, tag_passive, out matches);
+                    passive_voice_count += matches;
                 }
             } catch (Error e) {
                 warning ("Could not identify passive voice: %s", e.message);
             }
         }
 
-        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, bool highlight_all = true) throws Error {
+        private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, out int count, bool highlight_all = true) throws Error {
+            count = 0;
             do {
+                count++;
                 int start_pos, end_pos;
                 bool highlight = false;
                 if (highlight_all) {
@@ -319,7 +353,9 @@ namespace WriteGood {
                 separator = true;
                 Gtk.MenuItem passive_voice = new Gtk.MenuItem.with_label (_("Passive voice found, be active"));
                 menu.add (passive_voice);
-                menu.show_all ();
+                passive_voice.activate.connect (() => {
+                    passive_voice_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_weasel_words)) {
@@ -330,6 +366,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem weasel_word = new Gtk.MenuItem.with_label (_("Weasel word found, omit it"));
                 menu.add (weasel_word);
+                weasel_word.activate.connect (() => {
+                    weasel_words_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_weak_words)) {
@@ -340,6 +379,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem weak_word = new Gtk.MenuItem.with_label (_("Weak word found, be forceful"));
                 menu.add (weak_word);
+                weak_word.activate.connect (() => {
+                    weak_words_and_adverbs_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_wordy_words)) {
@@ -350,6 +392,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem wordy_word = new Gtk.MenuItem.with_label (_("Wordy word found, be direct"));
                 menu.add (wordy_word);
+                wordy_word.activate.connect (() => {
+                    wordy_words_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_lexical_illusions)) {
@@ -360,6 +405,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem lexical_illusion = new Gtk.MenuItem.with_label (_("Repeating word found"));
                 menu.add (lexical_illusion);
+                lexical_illusion.activate.connect (() => {
+                    lexical_illusions_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_hard_sentences)) {
@@ -370,6 +418,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem hard_sentence = new Gtk.MenuItem.with_label (_("This sentence is hard to read"));
                 menu.add (hard_sentence);
+                hard_sentence.activate.connect (() => {
+                    hard_sentences_clicked ();
+                });
             }
 
             if (iter_start.has_tag (tag_very_hard_sentences)) {
@@ -380,6 +431,9 @@ namespace WriteGood {
 
                 Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (_("This sentence is very hard to read"));
                 menu.add (very_hard_sentence);
+                very_hard_sentence.activate.connect (() => {
+                    hard_sentences_clicked ();
+                });
             }
 
             menu.show_all ();

@@ -51,7 +51,6 @@ Hope it's useful!
         checker.set_language ("en_US");
         checker.attach (view);
         checker.show_tooltip = true;
-        checker.show_menu_item = false;
 
         buffer.changed.connect (rescan);
 
