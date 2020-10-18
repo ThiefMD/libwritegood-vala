@@ -46,7 +46,7 @@ url=https://github.com/ThiefMD/libwritegood-vala.git
 revision=master
 ```
 
-Place the `writegood.wrap` in subprojects directory in your project.
+Place the `libwritegood.wrap` in subprojects directory in your project.
 
 In your meson.build, add:
 
