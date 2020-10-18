@@ -12,7 +12,8 @@
     "_layouts",
     "_includes",
     "js",
-    "images"
+    "images",
+    "build"
   ],
   "folder-order" : [
     "_includes",
@@ -21,6 +22,7 @@
     "_site",
     "css",
     "js",
-    "images"
+    "images",
+    "build"
   ]
 }
