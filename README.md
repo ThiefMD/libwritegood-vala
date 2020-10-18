@@ -38,7 +38,7 @@ gtk3-devel
 
 If your build system is meson, we recommend using [the wrap depenency system](https://mesonbuild.com/Wrap-dependency-system-manual.html)
 
-###  writegood.wrap
+###  libwritegood.wrap
 ```
 [wrap-git]
 directory=libwritegood
