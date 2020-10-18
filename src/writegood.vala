@@ -41,6 +41,34 @@ namespace WriteGood {
         public int hard_sentence_count { get; set; default = 0; }
         public int very_hard_sentence_count { get; set; default = 0; }
 
+        //
+        // String constants and ability to change messaging
+        //
+
+        public const string PASSIVE_VOICE_STR = "Passive voice found, be active";
+        public const string WEASEL_WORD_STR = "Weasel word found, omit it";
+        public const string WEAK_WORD_STR = "Weak word found, be forceful";
+        public const string WORDY_WORD_STR = "Wordy word found, be direct";
+        public const string LEXICAL_ILLUSION_STR = "Repeating word found";
+        public const string HARD_SENTENCE_STR = "This sentence is hard to read";
+        public const string VERY_HARD_SENTENCE_STR = "This sentence is very hard to read";
+
+        public string passive_voice_menu_label { get; set; default = PASSIVE_VOICE_STR; }
+        public string weasel_word_menu_label { get; set; default = WEASEL_WORD_STR; }
+        public string weak_words_and_adverbs_menu_label { get; set; default = WEAK_WORD_STR; }
+        public string wordy_word_menu_label { get; set; default = WORDY_WORD_STR; }
+        public string lexical_illution_menu_label { get; set; default = LEXICAL_ILLUSION_STR; }
+        public string hard_sentence_menu_label { get; set; default = HARD_SENTENCE_STR; }
+        public string very_hard_sentence_menu_label { get; set; default = VERY_HARD_SENTENCE_STR; }
+
+        public string passive_voice_tooltip_message { get; set; default = PASSIVE_VOICE_STR; }
+        public string weasel_word_tooltip_message { get; set; default = WEASEL_WORD_STR; }
+        public string weak_words_and_adverbs_tooltip_message { get; set; default = WEAK_WORD_STR; }
+        public string wordy_word_tooltip_message { get; set; default = WORDY_WORD_STR; }
+        public string lexical_illution_tooltip_message { get; set; default = LEXICAL_ILLUSION_STR; }
+        public string hard_sentence_tooltip_message { get; set; default = HARD_SENTENCE_STR; }
+        public string very_hard_sentence_tooltip_message { get; set; default = VERY_HARD_SENTENCE_STR; }
+
         private bool showing_tooltips = false;
         public bool show_tooltip { 
             get {
@@ -351,7 +379,7 @@ namespace WriteGood {
             if (iter_start.has_tag (tag_passive)) {
                 menu.add (new Gtk.SeparatorMenuItem ());
                 separator = true;
-                Gtk.MenuItem passive_voice = new Gtk.MenuItem.with_label (_("Passive voice found, be active"));
+                Gtk.MenuItem passive_voice = new Gtk.MenuItem.with_label (passive_voice_menu_label);
                 menu.add (passive_voice);
                 passive_voice.activate.connect (() => {
                     passive_voice_clicked ();
@@ -364,7 +392,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem weasel_word = new Gtk.MenuItem.with_label (_("Weasel word found, omit it"));
+                Gtk.MenuItem weasel_word = new Gtk.MenuItem.with_label (weasel_word_menu_label);
                 menu.add (weasel_word);
                 weasel_word.activate.connect (() => {
                     weasel_words_clicked ();
@@ -377,7 +405,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem weak_word = new Gtk.MenuItem.with_label (_("Weak word found, be forceful"));
+                Gtk.MenuItem weak_word = new Gtk.MenuItem.with_label (weak_words_and_adverbs_menu_label);
                 menu.add (weak_word);
                 weak_word.activate.connect (() => {
                     weak_words_and_adverbs_clicked ();
@@ -390,7 +418,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem wordy_word = new Gtk.MenuItem.with_label (_("Wordy word found, be direct"));
+                Gtk.MenuItem wordy_word = new Gtk.MenuItem.with_label (wordy_word_menu_label);
                 menu.add (wordy_word);
                 wordy_word.activate.connect (() => {
                     wordy_words_clicked ();
@@ -403,7 +431,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem lexical_illusion = new Gtk.MenuItem.with_label (_("Repeating word found"));
+                Gtk.MenuItem lexical_illusion = new Gtk.MenuItem.with_label (lexical_illution_menu_label);
                 menu.add (lexical_illusion);
                 lexical_illusion.activate.connect (() => {
                     lexical_illusions_clicked ();
@@ -416,7 +444,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem hard_sentence = new Gtk.MenuItem.with_label (_("This sentence is hard to read"));
+                Gtk.MenuItem hard_sentence = new Gtk.MenuItem.with_label (hard_sentence_menu_label);
                 menu.add (hard_sentence);
                 hard_sentence.activate.connect (() => {
                     hard_sentences_clicked ();
@@ -429,7 +457,7 @@ namespace WriteGood {
                     separator = true;
                 }
 
-                Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (_("This sentence is very hard to read"));
+                Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (very_hard_sentence_menu_label);
                 menu.add (very_hard_sentence);
                 very_hard_sentence.activate.connect (() => {
                     hard_sentences_clicked ();
@@ -457,31 +485,31 @@ namespace WriteGood {
             if (iter != null) {
                 string message = "";
                 if (iter.has_tag (tag_passive)) {
-                    message = _("Passive voice found, be active");
+                    message = passive_voice_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_weasel_words)) {
-                    message = _("Weasel word found, omit it");
+                    message = weasel_word_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_weak_words)) {
-                    message = _("Weak word found, be forceful");
+                    message = weak_words_and_adverbs_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_wordy_words)) {
-                    message = _("Wordy word found, be direct");
+                    message = wordy_word_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_lexical_illusions)) {
-                    message = _("Repeating word found");
+                    message = lexical_illution_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_hard_sentences)) {
-                    message = _("This sentence is hard to read");
+                    message = hard_sentence_tooltip_message;
                 }
 
                 if (iter.has_tag (tag_very_hard_sentences)) {
-                    message = _("This sentence is very hard to read");
+                    message = very_hard_sentence_tooltip_message;
                 }
 
                 if (message == "") {
