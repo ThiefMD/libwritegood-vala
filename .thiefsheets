@@ -1,0 +1,26 @@
+{
+  "sheet-order" : [
+    "index.md",
+    "about.md",
+    "quick-start.md",
+    "usage.md"
+  ],
+  "hidden-folders" : [
+    "vendor",
+    "_site",
+    "css",
+    "_layouts",
+    "_includes",
+    "js",
+    "images"
+  ],
+  "folder-order" : [
+    "_includes",
+    "_layouts",
+    "vendor",
+    "_site",
+    "css",
+    "js",
+    "images"
+  ]
+}

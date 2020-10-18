@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page.title }} - WriteGood</title>
+    <link rel="stylesheet" href="/css/pure-min.css" />
+    <link rel="stylesheet" href="/css/side-menu.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
+</head>
+<body>
+<div id="layout">
+{% include side_menu.html %}
+<div id="main">
+    <div class="header">
+        <h1>{{ page.title }}</h1>
+        {% if page.subtitle %}
+            <h2>{{ page.subtitle }}</h2>
+        {% endif %}
+    </div>
+    <div class="content">
+        {{ content }}
+    </div>
+</div>
+</div>
+<script src="/js/ui.js"></script>
+</body>
+</html>

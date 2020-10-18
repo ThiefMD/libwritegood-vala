@@ -36,3 +36,9 @@ build
 build/*
 .vscode/*
 .vscode
+
+# Pages stuff
+vendor
+vendor/*
+.sass-cache
+.sass-cache/*

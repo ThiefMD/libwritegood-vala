@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick-Start - WriteGood</title>
+    <link rel="stylesheet" href="/css/pure-min.css" />
+    <link rel="stylesheet" href="/css/side-menu.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
+</head>
+<body>
+<div id="layout">
+<a href="#menu" id="menuLink" class="menu-link">
+    <!-- Hamburger icon -->
+    <span></span>
+</a>
+
+<div id="menu">
+<div class="pure-menu">
+    <a href="/" class="pure-menu-heading">WriteGood</a>
+
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item "><a href="/" class="pure-menu-link">Home</a></li>
+        <li class="pure-menu-item "><a href="/about" class="pure-menu-link">About</a></li>
+        <li class="pure-menu-item pure-menu-selected"><a href="/quick-start" class="pure-menu-link">Quick-Start</a></li>
+        <li class="pure-menu-item "><a href="/usage" class="pure-menu-link">Usage</a></li>
+    </ul>
+</div>
+</div>
+<div id="main">
+    <div class="header">
+        <h1>Quick-Start</h1>
+        
+    </div>
+    <div class="content">
+        <h3 id="using-wraps">Using wraps</h3>
+
+<p>In the subprojects directory create <code class="highlighter-rouge">libwritegood.wrap</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[wrap-git]
+directory=libwritegood
+url=https://github.com/ThiefMD/libwritegood-vala.git
+revision=master
+</code></pre></div></div>
+
+<p>In your <code class="highlighter-rouge">meson.build</code>, add a dependency:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>writegood_dep = dependency('writegood-0.1', fallback : [ 'writegood', 'libwritegood_dep' ])
+</code></pre></div></div>
+
+<h3 id="using-git-submodules">Using Git-Submodules</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git submodule add https://github.com/ThiefMD/libwritegood-vala.git src/writegood
+</code></pre></div></div>
+
+<p>In your <code class="highlighter-rouge">meson.build</code> add a dependency, or add the code paths to your sources.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>executable(
+    meson.project_name(),
+    'src/writegood/src/language.vala',
+    'src/writegood/src/writegood.vala',
+    'src/writegood/src/en_us.vala',
+    c_args: c_args,
+    dependencies: [
+        dependency('gobject-2.0'),
+        dependency('gtksourceview-4'),
+        dependency('gtk+-3.0')
+    ],
+    vala_args: [
+        meson.source_root() + '/vapi/config.vapi'
+    ],
+    install : true
+)
+</code></pre></div></div>
+
+<h3 id="attach-to-the-textview-or-sourceview">Attach to the TextView or SourceView</h3>
+
+<div class="language-vala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">view</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Gtk</span><span class="p">.</span><span class="nf">SourceView</span> <span class="p">();</span>
+<span class="n">buffer</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Gtk</span><span class="p">.</span><span class="nf">SourceBuffer</span> <span class="p">(</span><span class="k">null</span><span class="p">);</span>
+<span class="n">buffer</span><span class="p">.</span><span class="n">highlight_syntax</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+<span class="n">view</span><span class="p">.</span><span class="nf">set_buffer</span> <span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+
+<span class="c1">//</span>
+<span class="c1">// Enable write-good</span>
+<span class="c1">//</span>
+<span class="n">checker</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WriteGood</span><span class="p">.</span><span class="nf">Checker</span> <span class="p">();</span>
+<span class="n">checker</span><span class="p">.</span><span class="nf">set_language</span> <span class="p">(</span><span class="s">"en_US"</span><span class="p">);</span>
+<span class="n">checker</span><span class="p">.</span><span class="nf">attach</span> <span class="p">(</span><span class="n">view</span><span class="p">);</span>
+
+<span class="c1">//</span>
+<span class="c1">// WriteGood doesn't auto-check for changes, may be too compute heavy for large docs</span>
+<span class="c1">// Probably don't do this, and use a Timeout, but yeah... just an example</span>
+<span class="c1">//</span>
+<span class="n">buffer</span><span class="p">.</span><span class="n">changed</span><span class="p">.</span><span class="nf">connect</span> <span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="n">checker</span><span class="p">.</span><span class="nf">recheck_all</span> <span class="p">();</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+    </div>
+</div>
+</div>
+<script src="/js/ui.js"></script>
+</body>
+</html>
