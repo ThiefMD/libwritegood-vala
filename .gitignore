@@ -42,3 +42,5 @@ vendor
 vendor/*
 .sass-cache
 .sass-cache/*
+_site
+_site/*

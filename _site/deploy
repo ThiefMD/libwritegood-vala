@@ -1,8 +1,0 @@
-#!/bin/sh
-USER=kmw
-HOST=164.90.158.13
-DIR=/home/kmw/writegood
-
-bundle exec jekyll build && rsync -avz --delete _site/ ${USER}@${HOST}:${DIR}
-
-exit 0
