@@ -112,7 +112,7 @@ namespace WriteGood {
             buffer.remove_tag (tag_hard_sentences, start, end);
             buffer.remove_tag (tag_very_hard_sentences, start, end);
             buffer.remove_tag (tag_lexical_illusions, start, end);
-            checking_copy = buffer.text;
+            checking_copy = buffer.get_text (start, end, true);
 
             if (check_hard_sentences) {
                 find_complex_sentences ();
@@ -157,8 +157,8 @@ namespace WriteGood {
                             bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
 
                             if (highlight) {
-                                start_pos = checking_copy.slice (0, start_pos).char_count ();
-                                end_pos = checking_copy.slice (0, end_pos).char_count ();
+                                start_pos = checking_copy.char_count (start_pos);
+                                end_pos = checking_copy.char_count (end_pos);
                                 Gtk.TextIter start, end;
                                 buffer.get_iter_at_offset (out start, start_pos);
                                 buffer.get_iter_at_offset (out end, end_pos);
@@ -221,8 +221,8 @@ namespace WriteGood {
 
                                 if (highlight) {
                                     lexical_illusions_count++;
-                                    start_pos = checking_copy.slice (0, start_pos).char_count ();
-                                    end_pos = checking_copy.slice (0, end_pos).char_count ();
+                                    start_pos = checking_copy.char_count (start_pos);
+                                    end_pos = checking_copy.char_count (end_pos);
                                     Gtk.TextIter start, end;
                                     buffer.get_iter_at_offset (out start, start_pos);
                                     buffer.get_iter_at_offset (out end, end_pos);
@@ -313,7 +313,7 @@ namespace WriteGood {
                 }
 
                 Regex passive_future = new Regex ("\\b(will)\\b\\s*(" + string.joinv ("|", language.passive_words) + string.joinv ("|", language.passive_future_words) + ")\\b", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
-                if (passive_future.match_full (buffer.text, buffer.text.length, 0, 0, out match_info)) {
+                if (passive_future.match_full (checking_copy, checking_copy.length, 0, 0, out match_info)) {
                     int matches = 0;
                     highlight_results (match_info, tag_passive, out matches);
                     passive_voice_count += matches;
@@ -332,8 +332,8 @@ namespace WriteGood {
                 if (highlight_all) {
                     highlight = match_info.fetch_pos (0, out start_pos, out end_pos);
                     string word = match_info.fetch (0);
-                    start_pos = checking_copy.slice (0, start_pos).char_count ();
-                    end_pos = checking_copy.slice (0, end_pos).char_count ();
+                    start_pos = checking_copy.char_count (start_pos);
+                    end_pos = checking_copy.char_count (end_pos);
 
                     if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                         debug ("%s: %s", marker.name, word);
@@ -348,8 +348,8 @@ namespace WriteGood {
                     for (int i = 1; i < match_info.get_match_count (); i++) {
                         highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
                         string word = match_info.fetch (i);
-                        start_pos = checking_copy.slice (0, start_pos).char_count ();
-                        end_pos = checking_copy.slice (0, end_pos).char_count ();
+                        start_pos = checking_copy.char_count (start_pos);
+                        end_pos = checking_copy.char_count (end_pos);
 
                         if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                             debug ("%s: %s", marker.name, word);
