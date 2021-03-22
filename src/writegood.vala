@@ -633,6 +633,10 @@ namespace WriteGood {
         }
 
         public void detach () {
+            if (buffer == null || view == null) {
+                return;
+            }
+
             view.populate_popup.disconnect (populate_menu);
 
             Gtk.TextIter start, end;
