@@ -53,6 +53,9 @@ Hope it's useful!
         checker.show_tooltip = true;
 
         buffer.changed.connect (rescan);
+        buffer.paste_done.connect ((clipboard) => {
+            checker.recheck_all ();
+        });
 
         window.add (preview_box);
         window.show_all ();
@@ -63,7 +66,7 @@ Hope it's useful!
         if (scheduler.can_do_action ()) {
             Timeout.add (TYPE_DELAY, () => {
                 debug ("\n===== rescan =====\n");
-                checker.recheck_all ();
+                checker.quick_check ();
                 return false;
             });
         }
