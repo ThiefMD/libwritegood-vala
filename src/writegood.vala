@@ -402,10 +402,10 @@ namespace WriteGood {
         }
 
         private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, out int count, bool highlight_all = true) throws Error {
+            count = 0;
             if (marker == null) {
                 return;
             }
-            count = 0;
             do {
                 count++;
                 int start_pos, end_pos;
