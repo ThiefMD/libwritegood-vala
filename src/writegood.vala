@@ -12,7 +12,9 @@ namespace WriteGood {
         private Gtk.TextTag tag_hard_sentences;
         private Gtk.TextTag tag_very_hard_sentences;
         private Mutex checking;
+        private int checking_offset;
         private string checking_copy;
+        private int last_cursor;
         private Language language;
         private string language_string;
 
@@ -91,6 +93,7 @@ namespace WriteGood {
             c_underline = underline;
             c_highlight = highlight;
             checking = Mutex ();
+            last_cursor = -1;
         }
 
         public void recheck_all () {
@@ -102,9 +105,85 @@ namespace WriteGood {
                 return;
             }
 
-            // Remove any previous tags
+            // Scan the whole block
             Gtk.TextIter start, end;
             buffer.get_bounds (out start, out end);
+            check_range (start, end);
+
+            checking.unlock ();
+        }
+
+        public void quick_check () {
+            if (view == null || buffer == null || language == null) {
+                return;
+            }
+
+            if (!checking.trylock ()) {
+                return;
+            }
+
+            // Get current cursor location
+            Gtk.TextIter start, end, cursor_iter;
+            var cursor = buffer.get_insert ();
+            buffer.get_iter_at_mark (out cursor_iter, cursor);
+            int current_cursor = cursor_iter.get_offset ();
+
+            // Determine scan area
+            if (last_cursor == -1) {
+                buffer.get_bounds (out start, out end);
+                check_range (start, end);
+            } else {
+                //
+                // Scan where we are
+                //
+                buffer.get_iter_at_mark (out start, cursor);
+                buffer.get_iter_at_mark (out end, cursor);
+                select_a_few_lines (ref start, ref end);
+                check_range (start, end);
+
+                //
+                // Scan where we were
+                //
+                if ((current_cursor - last_cursor).abs () > 60) {
+                    Gtk.TextIter old_start, old_end, bound_start, bound_end;
+                    buffer.get_bounds (out bound_start, out bound_end);
+                    buffer.get_iter_at_offset (out old_start, last_cursor);
+                    buffer.get_iter_at_offset (out old_end, last_cursor);
+                    if (old_start.in_range (bound_start, bound_end)) {
+                        select_a_few_lines (ref old_start, ref old_end);
+                        if (!old_start.in_range (start, end) || !old_end.in_range (start, end)) {
+                            check_range (old_start, old_end);
+                        }
+                    }
+                }
+            }
+
+            last_cursor = current_cursor;
+            checking.unlock ();
+        }
+
+        public void select_a_few_lines (ref Gtk.TextIter start, ref Gtk.TextIter end) {
+            start.backward_line ();
+            int line_checks = 0;
+            while (line_checks <= 5) {
+                if (!start.backward_line ()) {
+                    break;
+                }
+                line_checks += 1;
+            }
+
+            end.forward_line ();
+            line_checks = 0;
+            while (line_checks <= 5) {
+                if (!end.forward_line ()) {
+                    break;
+                }
+                line_checks += 1;
+            }
+        }
+
+        private void check_range (Gtk.TextIter start, Gtk.TextIter end) {
+            // Remove any previous tags
             buffer.remove_tag (tag_passive, start, end);
             buffer.remove_tag (tag_weasel_words, start, end);
             buffer.remove_tag (tag_weak_words, start, end);
@@ -113,6 +192,7 @@ namespace WriteGood {
             buffer.remove_tag (tag_very_hard_sentences, start, end);
             buffer.remove_tag (tag_lexical_illusions, start, end);
             checking_copy = buffer.get_text (start, end, true);
+            checking_offset = start.get_offset ();
 
             if (check_hard_sentences) {
                 find_complex_sentences ();
@@ -139,8 +219,6 @@ namespace WriteGood {
             }
 
             checking_copy = "";
-
-            checking.unlock ();
         }
 
         private void find_complex_sentences () {
@@ -157,8 +235,8 @@ namespace WriteGood {
                             bool highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
 
                             if (highlight) {
-                                start_pos = checking_copy.char_count (start_pos);
-                                end_pos = checking_copy.char_count (end_pos);
+                                start_pos = checking_offset + checking_copy.char_count (start_pos);
+                                end_pos = checking_offset + checking_copy.char_count (end_pos);
                                 Gtk.TextIter start, end;
                                 buffer.get_iter_at_offset (out start, start_pos);
                                 buffer.get_iter_at_offset (out end, end_pos);
@@ -221,8 +299,8 @@ namespace WriteGood {
 
                                 if (highlight) {
                                     lexical_illusions_count++;
-                                    start_pos = checking_copy.char_count (start_pos);
-                                    end_pos = checking_copy.char_count (end_pos);
+                                    start_pos = checking_offset + checking_copy.char_count (start_pos);
+                                    end_pos = checking_offset + checking_copy.char_count (end_pos);
                                     Gtk.TextIter start, end;
                                     buffer.get_iter_at_offset (out start, start_pos);
                                     buffer.get_iter_at_offset (out end, end_pos);
@@ -335,8 +413,8 @@ namespace WriteGood {
                 if (highlight_all) {
                     highlight = match_info.fetch_pos (0, out start_pos, out end_pos);
                     string word = match_info.fetch (0);
-                    start_pos = checking_copy.char_count (start_pos);
-                    end_pos = checking_copy.char_count (end_pos);
+                    start_pos = checking_offset + checking_copy.char_count (start_pos);
+                    end_pos = checking_offset + checking_copy.char_count (end_pos);
 
                     if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                         debug ("%s: %s", marker.name, word);
@@ -351,8 +429,8 @@ namespace WriteGood {
                     for (int i = 1; i < match_info.get_match_count (); i++) {
                         highlight = match_info.fetch_pos (i, out start_pos, out end_pos);
                         string word = match_info.fetch (i);
-                        start_pos = checking_copy.char_count (start_pos);
-                        end_pos = checking_copy.char_count (end_pos);
+                        start_pos = checking_offset + checking_copy.char_count (start_pos);
+                        end_pos = checking_offset + checking_copy.char_count (end_pos);
 
                         if (word != null && highlight && word.chomp ().chug () != "" && word.chomp ().chug () != "y") {
                             debug ("%s: %s", marker.name, word);
@@ -626,6 +704,7 @@ namespace WriteGood {
                 view.query_tooltip.connect (handle_tooltip);
             }
 
+            last_cursor = -1;
             return true;
         }
 
@@ -687,6 +766,7 @@ namespace WriteGood {
 
             view = null;
             buffer = null;
+            last_cursor = -1;
         }
 
         public static string[] get_language_list () {

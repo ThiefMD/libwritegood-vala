@@ -78,10 +78,17 @@ checker.set_language ("en_US");
 checker.attach (view);
 
 //
-// WriteGood doesn't auto-check for changes, may be too compute heavy for large docs
-// Probably don't do this, and use a Timeout, but yeah... just an example
+// Quick check only scans around the last check cursor position, and
+// and the current cursor position
 //
 buffer.changed.connect (() => {
+    checker.quick_check ();
+});
+
+//
+// Recheck all will scan the entire document
+//
+buffer.paste_done.connect ((clipboard) => {
     checker.recheck_all ();
 });
 ```
