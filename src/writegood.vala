@@ -403,6 +403,9 @@ namespace WriteGood {
 
         private void highlight_results (MatchInfo match_info, Gtk.TextTag marker, out int count, bool highlight_all = true) throws Error {
             count = 0;
+            if (marker == null) {
+                return;
+            }
             do {
                 count++;
                 int start_pos, end_pos;
@@ -445,6 +448,10 @@ namespace WriteGood {
 
         private void populate_menu (Gtk.TextView source, Gtk.Menu menu) {
             if (!show_menu_item) {
+                return;
+            }
+
+            if (buffer == null || view == null || tag_passive == null) {
                 return;
             }
 
@@ -547,6 +554,10 @@ namespace WriteGood {
 
         public bool handle_tooltip (int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip) {
             if (!showing_tooltips) {
+                return true;
+            }
+
+            if (buffer == null || view == null || tag_passive == null) {
                 return true;
             }
 
