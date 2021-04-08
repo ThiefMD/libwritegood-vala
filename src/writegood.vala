@@ -554,11 +554,11 @@ namespace WriteGood {
 
         public bool handle_tooltip (int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip) {
             if (!showing_tooltips) {
-                return true;
+                return false;
             }
 
             if (buffer == null || view == null || tag_passive == null) {
-                return true;
+                return false;
             }
 
             Gtk.TextIter? iter;
