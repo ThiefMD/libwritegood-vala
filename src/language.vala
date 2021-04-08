@@ -1,5 +1,5 @@
 namespace WriteGood {
-    public abstract class Language {
+    public abstract class Language : Object {
         public abstract string[] weasel_words { get; protected set; }
         public abstract string[] passive_words { get; protected set; }
         public abstract string[] passive_future_words { get; protected set; }

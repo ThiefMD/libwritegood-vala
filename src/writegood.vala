@@ -1,9 +1,9 @@
 const string GETTEXT_PACKAGE = "...";
 
 namespace WriteGood {
-    public class Checker {
-        private Gtk.TextView view;
-        private Gtk.TextBuffer buffer;
+    public class Checker : Object {
+        private unowned Gtk.TextView view;
+        private unowned Gtk.TextBuffer buffer;
         private Gtk.TextTag tag_passive;
         private Gtk.TextTag tag_weasel_words;
         private Gtk.TextTag tag_weak_words;

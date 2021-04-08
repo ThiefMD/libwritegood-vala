@@ -72,7 +72,7 @@ Hope it's useful!
         }
     }
 
-    public class TimedMutex {
+    public class TimedMutex : Object {
         private bool can_action;
         private Mutex droptex;
         private int delay;
