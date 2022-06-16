@@ -21,7 +21,7 @@ meson
 ninja-build
 valac
 cmake
-libgtk-3-dev
+libgtk-4-dev
 ```
 
 ### Fedora
@@ -31,7 +31,7 @@ vala
 meson
 ninja-build
 cmake
-gtk3-devel
+gtk4-devel
 ```
 
 ## Usage
@@ -58,13 +58,13 @@ Then add writegood_dep to your dependencies.
 
 ### Attaching to your TextView
 
-This example is with Gtk.SourceView, but a Gtk.TextView will also work.
+This example is with GtkSource.View, but a Gtk.TextView will also work.
 
 ```vala
-var manager = Gtk.SourceLanguageManager.get_default ();
+var manager = GtkSource.LanguageManager.get_default ();
 var language = manager.guess_language (null, "text/markdown");
-var view = new Gtk.SourceView ();
-buffer = new Gtk.SourceBuffer.with_language (language);
+var view = new GtkSource.View ();
+buffer = new GtkSource.Buffer.with_language (language);
 buffer.highlight_syntax = true;
 view.set_buffer (buffer);
 view.set_wrap_mode (Gtk.WrapMode.WORD);
