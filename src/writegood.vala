@@ -223,7 +223,7 @@ namespace WriteGood {
 
         private void find_complex_sentences () {
             try {
-                Regex check_sentences = new Regex ("\\s+([^\\.\\!\\?\\n]+[\\.\\!\\?\\n\\R])", RegexCompileFlags.CASELESS, 0);
+                Regex check_sentences = new Regex ("\\s+([^\\.\\!\\?\\n]+[\\.\\!\\?\\n\\r])", RegexCompileFlags.CASELESS, 0);
                 MatchInfo match_info;
                 hard_sentence_count = 0;
                 if (check_sentences.match_full (checking_copy, checking_copy.length, 0, RegexMatchFlags.BSR_ANYCRLF | RegexMatchFlags.NEWLINE_ANYCRLF, out match_info)) {
