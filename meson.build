@@ -7,7 +7,7 @@ project('writegood', ['vala', 'c'],
 
 glib_dep = dependency('glib-2.0')
 gobject_dep = dependency('gobject-2.0')
-gtk3_dep = dependency('gtk+-3.0')
+gtk3_dep = dependency('gtk4')
 
 libwritegood_deps = [
   glib_dep,

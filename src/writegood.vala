@@ -446,112 +446,6 @@ namespace WriteGood {
             } while (match_info.next ());
         }
 
-        private void populate_menu (Gtk.TextView source, Gtk.Menu menu) {
-            if (!show_menu_item) {
-                return;
-            }
-
-            if (buffer == null || view == null || tag_passive == null) {
-                return;
-            }
-
-            Gtk.TextMark cursor = buffer.get_insert ();
-            Gtk.TextIter iter_start;
-            buffer.get_iter_at_mark (out iter_start, cursor);
-
-            bool separator = false;
-
-            if (iter_start.has_tag (tag_passive)) {
-                menu.add (new Gtk.SeparatorMenuItem ());
-                separator = true;
-                Gtk.MenuItem passive_voice = new Gtk.MenuItem.with_label (passive_voice_menu_label);
-                menu.add (passive_voice);
-                passive_voice.activate.connect (() => {
-                    passive_voice_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_weasel_words)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem weasel_word = new Gtk.MenuItem.with_label (weasel_word_menu_label);
-                menu.add (weasel_word);
-                weasel_word.activate.connect (() => {
-                    weasel_words_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_weak_words)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem weak_word = new Gtk.MenuItem.with_label (weak_words_and_adverbs_menu_label);
-                menu.add (weak_word);
-                weak_word.activate.connect (() => {
-                    weak_words_and_adverbs_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_wordy_words)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem wordy_word = new Gtk.MenuItem.with_label (wordy_word_menu_label);
-                menu.add (wordy_word);
-                wordy_word.activate.connect (() => {
-                    wordy_words_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_lexical_illusions)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem lexical_illusion = new Gtk.MenuItem.with_label (lexical_illution_menu_label);
-                menu.add (lexical_illusion);
-                lexical_illusion.activate.connect (() => {
-                    lexical_illusions_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_hard_sentences)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem hard_sentence = new Gtk.MenuItem.with_label (hard_sentence_menu_label);
-                menu.add (hard_sentence);
-                hard_sentence.activate.connect (() => {
-                    hard_sentences_clicked ();
-                });
-            }
-
-            if (iter_start.has_tag (tag_very_hard_sentences)) {
-                if (!separator) {
-                    menu.add (new Gtk.SeparatorMenuItem ());
-                    separator = true;
-                }
-
-                Gtk.MenuItem very_hard_sentence = new Gtk.MenuItem.with_label (very_hard_sentence_menu_label);
-                menu.add (very_hard_sentence);
-                very_hard_sentence.activate.connect (() => {
-                    hard_sentences_clicked ();
-                });
-            }
-
-            menu.show_all ();
-        }
-
         public bool handle_tooltip (int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip) {
             if (!showing_tooltips) {
                 return false;
@@ -630,74 +524,73 @@ namespace WriteGood {
             }
 
             view.destroy.connect (detach);
-            view.populate_popup.connect (populate_menu);
 
             // Passive words underline green
             tag_passive = buffer.create_tag ("passive_voice", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_passive.underline_rgba = Gdk.RGBA () { red = 0.0468, green = 0.5151, blue = 0.4381, alpha = 1.0 };
+                tag_passive.underline_rgba = Gdk.RGBA () { red = 0.0468f, green = 0.5151f, blue = 0.4381f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_passive.background_rgba = Gdk.RGBA () { red = 0.0468, green = 0.5151, blue = 0.4381, alpha = 1.0 };
-                tag_passive.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_passive.background_rgba = Gdk.RGBA () { red = 0.0468f, green = 0.5151f, blue = 0.4381f, alpha = 1.0f };
+                tag_passive.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             // Weasel words in yellow
             tag_weasel_words = buffer.create_tag ("weasel_word", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_weasel_words.underline_rgba = Gdk.RGBA () { red = 0.4892, green = 0.3851, blue = 0.1257, alpha = 1.0 };
+                tag_weasel_words.underline_rgba = Gdk.RGBA () { red = 0.4892f, green = 0.3851f, blue = 0.1257f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_weasel_words.background_rgba = Gdk.RGBA () { red = 0.4892, green = 0.3851, blue = 0.1257, alpha = 1.0 };
-                tag_weasel_words.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_weasel_words.background_rgba = Gdk.RGBA () { red = 0.4892f, green = 0.3851f, blue = 0.1257f, alpha = 1.0f };
+                tag_weasel_words.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             // Weak words and adverbs
             tag_weak_words = buffer.create_tag ("weak_word", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_weak_words.underline_rgba = Gdk.RGBA () { red = 0.1263, green = 0.3242, blue = 0.5495, alpha = 1.0 };
+                tag_weak_words.underline_rgba = Gdk.RGBA () { red = 0.1263f, green = 0.3242f, blue = 0.5495f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_weak_words.background_rgba = Gdk.RGBA () { red = 0.1263, green = 0.3242, blue = 0.5495, alpha = 1.0 };
-                tag_weak_words.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_weak_words.background_rgba = Gdk.RGBA () { red = 0.1263f, green = 0.3242f, blue = 0.5495f, alpha = 1.0f };
+                tag_weak_words.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             // Wordy words
             tag_wordy_words = buffer.create_tag ("wordy_word", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_wordy_words.underline_rgba = Gdk.RGBA () { red = 0.3257, green = 0.1629, blue = 0.5114, alpha = 1.0 };
+                tag_wordy_words.underline_rgba = Gdk.RGBA () { red = 0.3257f, green = 0.1629f, blue = 0.5114f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_wordy_words.background_rgba = Gdk.RGBA () { red = 0.3257, green = 0.1629, blue = 0.5114, alpha = 1.0 };
-                tag_wordy_words.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_wordy_words.background_rgba = Gdk.RGBA () { red = 0.3257f, green = 0.1629f, blue = 0.5114f, alpha = 1.0f };
+                tag_wordy_words.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             // Lexical Illusions
             tag_lexical_illusions = buffer.create_tag ("lexical_illustion", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_lexical_illusions.underline_rgba = Gdk.RGBA () { red = 0.6115, green = 0.2878, blue = 0.1007, alpha = 1.0 };
+                tag_lexical_illusions.underline_rgba = Gdk.RGBA () { red = 0.6115f, green = 0.2878f, blue = 0.1007f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_lexical_illusions.background_rgba = Gdk.RGBA () { red = 0.6115, green = 0.2878, blue = 0.1007, alpha = 1.0 };
-                tag_lexical_illusions.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_lexical_illusions.background_rgba = Gdk.RGBA () { red = 0.6115f, green = 0.2878f, blue = 0.1007f, alpha = 1.0f };
+                tag_lexical_illusions.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             // Hard sentences
             tag_hard_sentences = buffer.create_tag ("hard_sentence", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_hard_sentences.underline_rgba = Gdk.RGBA () { red = 0.3373, green = 0.2929, blue = 0.3698, alpha = 1.0 };
+                tag_hard_sentences.underline_rgba = Gdk.RGBA () { red = 0.3373f, green = 0.2929f, blue = 0.3698f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_hard_sentences.background_rgba = Gdk.RGBA () { red = 0.3373, green = 0.2929, blue = 0.3698, alpha = 1.0 };
-                tag_hard_sentences.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_hard_sentences.background_rgba = Gdk.RGBA () { red = 0.3373f, green = 0.2929f, blue = 0.3698f, alpha = 1.0f };
+                tag_hard_sentences.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
             tag_very_hard_sentences = buffer.create_tag ("very_hard_sentence", "underline", Pango.Underline.ERROR, null);
             if (c_underline) {
-                tag_very_hard_sentences.underline_rgba = Gdk.RGBA () { red = 0.478, green = 0.0, blue = 0.0, alpha = 1.0 };
+                tag_very_hard_sentences.underline_rgba = Gdk.RGBA () { red = 0.478f, green = 0.0f, blue = 0.0f, alpha = 1.0f };
             }
             if (c_highlight) {
-                tag_very_hard_sentences.background_rgba = Gdk.RGBA () { red = 0.478, green = 0.0, blue = 0.0, alpha = 1.0 };
-                tag_very_hard_sentences.foreground_rgba = Gdk.RGBA () { red = 0.9, green = 0.9, blue = 0.9, alpha = 1.0 };
+                tag_very_hard_sentences.background_rgba = Gdk.RGBA () { red = 0.478f, green = 0.0f, blue = 0.0f, alpha = 1.0f };
+                tag_very_hard_sentences.foreground_rgba = Gdk.RGBA () { red = 0.9f, green = 0.9f, blue = 0.9f, alpha = 1.0f };
             }
 
             if (showing_tooltips) {
@@ -726,8 +619,6 @@ namespace WriteGood {
             if (buffer == null || view == null) {
                 return;
             }
-
-            view.populate_popup.disconnect (populate_menu);
 
             Gtk.TextIter start, end;
             buffer.get_bounds (out start, out end);

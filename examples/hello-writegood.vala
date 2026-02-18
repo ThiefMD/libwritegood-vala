@@ -2,8 +2,8 @@ using Gtk;
 using Gdk;
 
 public class HelloWriteGood : Gtk.Application {
-    private Gtk.SourceView view;
-    private Gtk.SourceBuffer buffer;
+    private GtkSource.View view;
+    private GtkSource.Buffer buffer;
     private WriteGood.Checker checker;
     private TimedMutex scheduler;
     private const int TYPE_DELAY = 500;
@@ -29,19 +29,18 @@ Hope it's useful!
         window.set_title ("WriteGood Example");
         window.set_default_size (800, 640);
 
-        var preview_box = new Gtk.ScrolledWindow (null, null);
+        var preview_box = new Gtk.ScrolledWindow ();
         scheduler = new TimedMutex (TYPE_DELAY);
 
-        var manager = Gtk.SourceLanguageManager.get_default ();
+        var manager = GtkSource.LanguageManager.get_default ();
         var language = manager.guess_language (null, "text/markdown");
-        view = new Gtk.SourceView ();
-        view.margin = 0;
-        buffer = new Gtk.SourceBuffer.with_language (language);
+        view = new GtkSource.View ();
+        buffer = new GtkSource.Buffer.with_language (language);
         buffer.highlight_syntax = true;
         view.set_buffer (buffer);
         view.set_wrap_mode (Gtk.WrapMode.WORD);
         buffer.text = SAMPLE_TEXT;
-        preview_box.add (view);
+        preview_box.set_child (view);
 
         //
         // Enable write-good
@@ -57,8 +56,8 @@ Hope it's useful!
             checker.recheck_all ();
         });
 
-        window.add (preview_box);
-        window.show_all ();
+        window.set_child (preview_box);
+        window.show ();
         checker.recheck_all ();
     }
 
